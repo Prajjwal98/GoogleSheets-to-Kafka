@@ -1,6 +1,7 @@
 # airflow related
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.dummy_operator import DummyOperator
 
 import sparkMain
 
@@ -17,9 +18,16 @@ default_args = {
 
 with DAG(dag_id='schedule_Kafka_Job', description='DAG for Kafka Assignment', default_args=default_args) as dag
 
-main job = PythonOperator(
-  task_id='main_job', 
+main_job = PythonOperator(
+  task_id='Main_Job', 
   python_callable=sparkMain.myDriverFunction, 
   dag=dag
 )
   
+dummy_operator = DummyOperator(
+    task_id='Starting_Task',
+    retries = 3, 
+    dag=dag
+)
+
+dummy_operator >> main_job
